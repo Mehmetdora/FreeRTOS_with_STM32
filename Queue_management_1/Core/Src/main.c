@@ -3,24 +3,32 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "stdio.h"
+#include "queue.h"
+
+#include "string.h"
+#include "LED_Driver.h"
+
+
 
 UART_HandleTypeDef huart2;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_USART2_UART_Init(void);
 
-void setup(void);
+
 void usart_config(void);
 void print_uart(char* msg);
 char myMsg[200];
-char UART_ACCESS_FLAG = 1;
 
 
-void Task1_Handler(void* params);
-void Task2_Handler(void* params);
+void LED_TASK_Handler(void* params);
+TaskHandle_t LEDTaskHandle = NULL;
 
-TaskHandle_t Task1Handle = NULL;
-TaskHandle_t Task2Handle = NULL;
+QueueHandle_t uart_commands_queue;
+
+
+
+volatile char RX_BUFFER[30];
+volatile uint8_t rx_index = 0;
 
 
 
@@ -33,11 +41,9 @@ int main(void)
 	HAL_Init();
 	SystemClock_Config();
 	MX_GPIO_Init();
-	MX_USART2_UART_Init();
 
-
-  setup();
   usart_config();
+  LED_config();
 
   DWT->CTRL |= (1UL << 0);		// DWT aktif edildi
   SEGGER_SYSVIEW_Conf();
@@ -45,28 +51,36 @@ int main(void)
 
 
 
-  xTaskCreate(    Task1_Handler,				// Task'ın çalıştıracağı fonksiyon
-				  "Task 1",						// Task'ın ismi, debug için kullanılır
-				  configMINIMAL_STACK_SIZE ,	// Task için ayrılacak stack boyutu, task a göre farklı olabilir
-				  NULL,							// Task'a gönderilecek parametre
-				  4,							// Task önceliği, büyük sayı daha önceliklidir
-				  &Task1Handle);				// Task'ın referansı , task ı durdurmak veya başlatmak için bu kullanılacak
 
-  xTaskCreate(    Task2_Handler,				// Task'ın çalıştıracağı fonksiyon
-  				  "Task 2",						// Task'ın ismi, debug için kullanılır
+
+  uart_commands_queue = xQueueCreate(5,sizeof(char[30]));
+  if(uart_commands_queue == NULL){
+      // Queue oluşturulamadı = heap yetmedi
+      while(1);  // burda takılırsa heap sorunu kesindir
+
+  }
+
+
+
+  xTaskCreate(    LED_TASK_Handler,				// Task'ın çalıştıracağı fonksiyon
+  				  "LED Controller Task",						// Task'ın ismi, debug için kullanılır
   				  configMINIMAL_STACK_SIZE ,	// Task için ayrılacak stack boyutu, task a göre farklı olabilir
   				  NULL,							// Task'a gönderilecek parametre
   				  4,							// Task önceliği, büyük sayı daha önceliklidir
-  				  &Task2Handle);
+  				  &LEDTaskHandle);
+
+
+
+
+
 
   vTaskStartScheduler();		// RTOS çalışmaya başlar
 
 
-
+  SEGGER_SYSVIEW_Start();
 
   while (1)
   {
-
 
 
   }
@@ -76,46 +90,56 @@ int main(void)
 
 
 
-void Task1_Handler(void* params){
-	  SEGGER_SYSVIEW_Start();
+void LED_TASK_Handler(void* params){
+
+
+	uint8_t received_command[30];
+
 	while(1){
 
-		if(UART_ACCESS_FLAG == 1){					// flag kontrol edilir, 1 ise task çalışır
-													// flag kapatılarak bu task bitene kadar diğer task çalışamaz
-			print_uart("MERHABA MERHABA MERHABA");
-			UART_ACCESS_FLAG = 0;					// bu task bittiği için flag açılır ve diğer task da aynı şekilde çalışabilir
-			taskYIELD();							// taskYIELD() ile bu taskın bittiği söylenir ve bu task'tan çıkmak için kullanılır.
+
+		if(xQueueReceive(uart_commands_queue, received_command, portMAX_DELAY) == pdPASS){
+
+			/*
+			 * Buradaki while(1) içindeki if ile queue kontrolü polling gibi görünsede aslında
+			 * polling değildir. QueueReceive() fonksiyonu bloklayıcı bir fonksiyondur, bu nedenle
+			 * eğer veri gelmezse parametre olarak belirtilen portMAX_DELAY sonucunda sonsuza kadar
+			 * bloklanacaktır, bekleyecektir. Yani CPU burada oyalanmaz, yapı event-driven çalışır.
+			 *
+			 * 	Bu method ile her veri alındığında veri queue dan çıkarılır, silinir.
+			 */
+
+			if(strcmp((char*)received_command, "LED_ON") == 0){
+				LED_ON();
+				print_uart("LED ON\r\n");
+			}
+			else if(strcmp((char*)received_command, "LED_OFF") == 0){
+				LED_OFF();
+				print_uart("LED OFF\r\n");
+			}
+			else if(strcmp((char*)received_command, "LED_TOGGLE") == 0){
+				LED_TOGGLE();
+				print_uart("LED TOGGLE\r\n");
+			}
+			else{
+				print_uart("BILINMEYEN KOMUT\r\n");
+			}
 		}
+
 
 	}
 }
 
-void Task2_Handler(void* params){
-
-	while(1){
-		if(UART_ACCESS_FLAG == 0){
-
-			print_uart("hello_world hello_world");
-			UART_ACCESS_FLAG = 1;
-			taskYIELD();
-
-		}
-	}
-}
-
-void setup(void){
-
-	RCC->AHB1ENR |= (1UL << 0);
-
-	GPIOA->MODER |= (2UL << (2*2)) | (2UL << (2*3));	// PA2-PA3 AF modunda gelitirildi
-	GPIOA->AFR[0] |= (7UL << (2*4)) | (7UL << (3*4));	// AF7 olarak ayarlandılar.
-
-
-}
 
 void usart_config(void){
 
-	RCC->APB1ENR |= (1UL << 17);
+	RCC->APB1ENR |= (1UL << 17);		// uart clock enable
+	RCC->AHB1ENR |= (1UL << 0);			// GPIOA clock enable
+
+
+
+	GPIOA->MODER |= (2UL << (2*2)) | (2UL << (2*3));	// PA2-PA3 AF modunda gelitirildi
+	GPIOA->AFR[0] |= (7UL << (2*4)) | (7UL << (3*4));	// AF7 olarak ayarlandılar.
 
 	USART2->CR1 &= ~(1UL << 12);	// Data boyutunun 8 bit olarak ayarlanması
 
@@ -123,17 +147,17 @@ void usart_config(void){
 
 	USART2->BRR = (22UL << 4) | (13UL);		// eski değerlerlerin kalmaması için direkt = kullan
 
-
-
-
 	// Transmitter enable ve receiver enable yapmak
 
 	USART2->CR1 |= (1UL << 2) | (1UL << 3);
 
 
 	// USART2 RX interrupt enable
-	//USART2->CR1 |= (1UL << 5);		// Bu bit RXENIE ile RX için interruot a izin verir
-	//NVIC_EnableIRQ(USART2_IRQn);	// Bu NVIC in bu interrupt için erişilebilmesini sağlar.
+	USART2->CR1 |= (1UL << 5);		// Bu bit RXENIE ile RX için interruot a izin verir
+
+
+	NVIC_SetPriority(USART2_IRQn, 6);
+	NVIC_EnableIRQ(USART2_IRQn);	// Bu NVIC in bu interrupt için erişilebilmesini sağlar.
 
 
 	USART2->CR1 |= (1UL << 13);		// Usart2 enable
@@ -142,10 +166,83 @@ void usart_config(void){
 
 }
 
+
+
+
+
+void USART2_IRQHandler(void){
+
+
+	if(USART2->SR & (1UL << 5)){
+
+		/*
+		 * RX interrupt enable ve
+		 * RX den veri okunmaya hazırsa
+		 */
+		uint8_t byte = USART2->DR;
+
+		if(byte == '\r'){
+
+			if(rx_index == 0) return;
+			RX_BUFFER[rx_index] = '\0';
+			rx_index = 0;
+
+
+			//	QUEUE MANAGEMENT FROM ISR
+
+			BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+			// bu methodun dönüş değeri queue nın dolu olması durumu hakkında bilgi verir
+			BaseType_t result = xQueueSendFromISR(uart_commands_queue, RX_BUFFER , &xHigherPriorityTaskWoken);
+			if(result == errQUEUE_FULL){
+				// Queue dolu, hata verdi -> duruma özel aksiyon alınabilir
+			}
+
+			portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+			/*
+			 * Buradaki xHigherPriorityTaskWoken değeri ISR sırasında bir task uyandırıldı mı
+			 * bilgisini taşır. Bu değer QueueSendFromISR() fonksiyonuna verilir, eğer
+			 * queue ya veri yazılması sonucu bir task aktif hale geçecekse fonksiyon
+			 * sonunda pdTRUE olur. En sondaki YIELD_FROM_ISR() methodu ise bu değişkenin
+			 * değerine göre ISR çıkışınca hemen aktif olan task ın başlatılmasını sağlar.
+			 *
+			 * QueueSendFromISR() methodu queue ya verinin yazılıp yazılamadığı hakkında
+			 * sonucu return eder, bu sonuca göre işlemler uygulanabilir.
+			 *
+			 */
+
+
+
+
+
+		}else{
+
+			if(byte == '\n') return;
+
+			if(rx_index < 29){
+			    RX_BUFFER[rx_index++] = byte;
+			} else {
+			    rx_index = 0;
+			}
+
+		}
+
+
+
+	}
+
+
+}
+
+
+
+
+
 void print_uart(char* msg){
 
 	while(*msg){
-		while( !(USART2->SR & (1UL << 6)) ){};
+		while( !(USART2->SR & (1UL << 7)) ){};
 		USART2->DR = *msg++;
 	}
 
@@ -202,38 +299,6 @@ void SystemClock_Config(void)
   }
 }
 
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
-}
 
 /**
   * @brief GPIO Initialization Function

@@ -63,7 +63,7 @@ int main(void)
 
 
 
-
+  SEGGER_SYSVIEW_Start();		// RTOS başlatıldıktan sonra başlatılmalı
   while (1)
   {
 
@@ -77,7 +77,7 @@ int main(void)
 
 
 void Task1_Handler(void* params){
-	  SEGGER_SYSVIEW_Start();
+
 	while(1){
 
 		if(UART_ACCESS_FLAG == 1){					// flag kontrol edilir, 1 ise task çalışır

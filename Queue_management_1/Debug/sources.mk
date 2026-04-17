@@ -24,6 +24,7 @@ C_DEPS :=
 SUBDIRS := \
 Core/Src \
 Core/Startup \
+Drivers/Modules \
 Drivers/STM32F4xx_HAL_Driver/Src \
 ThirdParty/FreeRTOS/org/Source \
 ThirdParty/FreeRTOS/org/Source/portable/GCC/ARM_CM4F \
