@@ -1,0 +1,5 @@
+../Drivers/Modules/LED_Driver.c:14:6:LED_config	4	static
+../Drivers/Modules/LED_Driver.c:22:6:LED_ON	4	static
+../Drivers/Modules/LED_Driver.c:25:6:LED_OFF	4	static
+../Drivers/Modules/LED_Driver.c:28:6:LED_TOGGLE	4	static
+../Drivers/Modules/LED_Driver.c:32:6:LED_BLINK	16	static
