@@ -1,0 +1,12 @@
+../Core/Src/main.c:38:5:main	1
+../Core/Src/main.c:102:6:Task4_uart_logging_Handler	1
+../Core/Src/main.c:117:6:Task1_red_led_Handler	1
+../Core/Src/main.c:130:6:Task2_blue_led_Handler	1
+../Core/Src/main.c:142:6:Task3_green_led_Handler	1
+../Core/Src/main.c:158:6:usart_config	1
+../Core/Src/main.c:187:6:print_uart	3
+../Core/Src/main.c:205:6:SystemClock_Config	3
+../Core/Src/main.c:252:13:MX_USART2_UART_Init	2
+../Core/Src/main.c:285:13:MX_GPIO_Init	1
+../Core/Src/main.c:331:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/main.c:349:6:Error_Handler	1
