@@ -1,0 +1,5 @@
+../Drivers/Modules/GPIO_Driver.c:16:6:gpio_setup_leds	4	static
+../Drivers/Modules/GPIO_Driver.c:31:6:gpio_setup_adc	24	static
+../Drivers/Modules/GPIO_Driver.c:78:5:ADC_get_analog_value	16	static
+../Drivers/Modules/GPIO_Driver.c:92:6:gpio_set	16	static
+../Drivers/Modules/GPIO_Driver.c:96:6:gpio_reset	16	static
