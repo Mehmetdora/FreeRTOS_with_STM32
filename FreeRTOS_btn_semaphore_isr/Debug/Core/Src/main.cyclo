@@ -1,0 +1,8 @@
+../Core/Src/main.c:38:5:main	1
+../Core/Src/main.c:90:6:Task1_led_open_Handler	1
+../Core/Src/main.c:104:6:Task2_led_close_Handler	1
+../Core/Src/main.c:123:6:SystemClock_Config	3
+../Core/Src/main.c:170:13:MX_USART2_UART_Init	2
+../Core/Src/main.c:203:13:MX_GPIO_Init	1
+../Core/Src/main.c:249:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/main.c:267:6:Error_Handler	1
