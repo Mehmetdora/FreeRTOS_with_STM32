@@ -1,0 +1,10 @@
+../Core/Src/main.c:114:5:main	6
+../Core/Src/main.c:220:6:Task1_system_control_btns_Handler	5
+../Core/Src/main.c:256:6:Task2_state_manager_Handler	8
+../Core/Src/main.c:314:6:Task3_balance_control_Handler	4
+../Core/Src/main.c:364:6:Task4_LED_Blinker_Handler	3
+../Core/Src/main.c:397:6:SystemClock_Config	3
+../Core/Src/main.c:444:13:MX_USART2_UART_Init	2
+../Core/Src/main.c:477:13:MX_GPIO_Init	1
+../Core/Src/main.c:523:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/main.c:541:6:Error_Handler	1

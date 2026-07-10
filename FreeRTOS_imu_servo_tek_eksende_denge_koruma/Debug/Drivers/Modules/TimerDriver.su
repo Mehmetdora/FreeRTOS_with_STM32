@@ -1,0 +1,8 @@
+../Drivers/Modules/TimerDriver.c:30:6:PWMDriver_init	8	static
+../Drivers/Modules/TimerDriver.c:117:7:clamp_float	24	static
+../Drivers/Modules/TimerDriver.c:124:6:Servo_SetAngle	24	static
+../Drivers/Modules/TimerDriver.c:150:7:limit_step	24	static
+../Drivers/Modules/TimerDriver.c:158:6:Servo_SetPulseUs	16	static
+../Drivers/Modules/TimerDriver.c:173:6:Servo_SetNeutral	8	static
+../Drivers/Modules/TimerDriver.c:179:6:PWMDriver_on	4	static
+../Drivers/Modules/TimerDriver.c:184:6:PWMDriver_off	4	static

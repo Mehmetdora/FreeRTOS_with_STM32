@@ -1,0 +1,4 @@
+../Drivers/Modules/I2C_Driver.c:16:6:I2C1_init	1
+../Drivers/Modules/I2C_Driver.c:76:6:I2C1_ByteRead	8
+../Drivers/Modules/I2C_Driver.c:205:6:I2C1_BurstRead	11
+../Drivers/Modules/I2C_Driver.c:348:6:I2C1_BurstWrite	8

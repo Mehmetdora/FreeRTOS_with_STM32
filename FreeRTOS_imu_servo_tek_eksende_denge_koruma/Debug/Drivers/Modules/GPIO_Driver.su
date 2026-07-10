@@ -1,0 +1,9 @@
+../Drivers/CMSIS/Include/core_cm4.h:1684:22:__NVIC_EnableIRQ	16	static,ignoring_inline_asm
+../Drivers/CMSIS/Include/core_cm4.h:1814:22:__NVIC_SetPriority	16	static
+../Drivers/Modules/GPIO_Driver.c:25:6:gpio_setup	8	static
+../Drivers/Modules/GPIO_Driver.c:81:6:gpio_set	16	static
+../Drivers/Modules/GPIO_Driver.c:85:6:gpio_reset	16	static
+../Drivers/Modules/GPIO_Driver.c:89:6:gpio_toggle	16	static
+../Drivers/Modules/GPIO_Driver.c:95:6:EXTI0_IRQHandler	16	static,ignoring_inline_asm
+../Drivers/Modules/GPIO_Driver.c:109:6:EXTI1_IRQHandler	16	static,ignoring_inline_asm
+../Drivers/Modules/GPIO_Driver.c:123:6:EXTI15_10_IRQHandler	16	static,ignoring_inline_asm

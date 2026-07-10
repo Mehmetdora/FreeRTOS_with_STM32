@@ -1,0 +1,6 @@
+../Drivers/Modules/MPU_6050_Driver.c:23:6:MPU_init	1
+../Drivers/Modules/MPU_6050_Driver.c:32:6:MPU6050_ReadAccel	1
+../Drivers/Modules/MPU_6050_Driver.c:44:6:MPU6050_ReadGyro	1
+../Drivers/Modules/MPU_6050_Driver.c:57:7:MPU6050_GetPitchAngle	1
+../Drivers/Modules/MPU_6050_Driver.c:72:7:NormalizeAngle180	3
+../Drivers/Modules/MPU_6050_Driver.c:88:7:MPU6050_GetRollAngle	1

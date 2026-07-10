@@ -1,0 +1,10 @@
+../Core/Src/main.c:114:5:main	16	static
+../Core/Src/main.c:220:6:Task1_system_control_btns_Handler	16	static
+../Core/Src/main.c:256:6:Task2_state_manager_Handler	16	static,ignoring_inline_asm
+../Core/Src/main.c:314:6:Task3_balance_control_Handler	32	static
+../Core/Src/main.c:364:6:Task4_LED_Blinker_Handler	24	static
+../Core/Src/main.c:397:6:SystemClock_Config	88	static
+../Core/Src/main.c:444:13:MX_USART2_UART_Init	8	static
+../Core/Src/main.c:477:13:MX_GPIO_Init	48	static
+../Core/Src/main.c:523:6:HAL_TIM_PeriodElapsedCallback	16	static
+../Core/Src/main.c:541:6:Error_Handler	4	static,ignoring_inline_asm
